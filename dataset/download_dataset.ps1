@@ -1,0 +1,2 @@
+Invoke-WebRequest -Uri 'https://archive.ics.uci.edu/ml/machine-learning-databases/00332/OnlineNewsPopularity.zip' -OutFile 'OnlineNewsPopularity.zip'
+Expand-Archive OnlineNewsPopularity.zip -DestinationPath .

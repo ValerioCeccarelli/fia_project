@@ -1,20 +1,21 @@
 from common.my_statistics import h_entropy, boolean_mode
+import numpy as np
 
 
 class TreeNode:
     def __init__(self, feature: int, value: float, left, right):
-        assert left is None or isinstance(left, TreeNode), "left deve essere un TreeNode"
-        assert right is None or isinstance(right, TreeNode), "right deve essere un TreeNode"
-        assert isinstance(feature, int), "feature deve essere un int"
-        assert isinstance(value, float), "value deve essere un float"
-        assert feature >= 0, "feature deve essere un intero >= 0"
+        assert isinstance(left, bool) or isinstance(left, TreeNode), f"left must be a TreeNode object or a boolean value but is: {type(left)}"
+        assert isinstance(right, bool) or isinstance(right, TreeNode), "right must be a TreeNode object or a boolean value"
+        assert isinstance(feature, int), "feature must be a int"
+        assert isinstance(value, float), "value must be a float"
+
+        # if feature < 0:
+        #     raise ValueError(f"feature must be an int greater or equal than 0, currently is: {feature}")
+
         self.feature = feature
         self.value = value
         self.left = left
         self.right = right
-
-    def is_leaf(self):
-        return self.left is None and self.right is None
 
     def __str__(self):
         return str([self.feature, self.value, self.left, self.right])
@@ -23,14 +24,20 @@ class TreeNode:
         return str(self)
 
 
-def plurality_value(y_train):
+def plurality_value(y_train: list[bool]) -> bool:
     return boolean_mode(y_train)
 
 
-def find_median(x_train, feature):
-    assert feature >= 0, "feature deve essere un intero >= 0"
-    assert len(x_train) > 0, "x_train deve avere lunghezza > 0"
-    assert feature < len(x_train[0]), "feature deve essere un indice valido"
+def find_median(x_train: list, feature: int):
+    assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
+    assert isinstance(feature, int), "feature should be an int"
+
+    # if feature < 0:
+    #     raise ValueError(f"feature must be an int greater or equal than 0, currently is: {feature}")
+    # if len(x_train) == 0:
+    #     raise ValueError("x_train should have size > 0")
+    # if feature >= len(x_train[0]):
+    #     raise ValueError(f"feature should be a valid index, currently is: {feature} but x_train has {len(x_train[0])} features")
 
     x_train = sorted(x_train, key=lambda x: x[feature])
     if len(x_train) % 2 != 0:
@@ -40,10 +47,19 @@ def find_median(x_train, feature):
     return (x_train[len(x_train) // 2][feature] + x_train[len(x_train) // 2 - 1][feature]) / 2
 
 
-def partizione(x_train, y_train, median, feature):
-    assert feature >= 0, "feature deve essere un intero >= 0"
-    assert len(x_train) > 0, "x_train deve avere lunghezza > 0"
-    assert feature < len(x_train[0]), "feature deve essere un indice valido"
+def partizione(x_train: list, y_train: list[bool], median: float, feature: int):
+    assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
+    assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
+    assert isinstance(median, float), "median should be a float"
+    assert isinstance(feature, int), "feature should be an int"
+
+    # if feature < 0:
+    #     raise ValueError(f"feature must be an int greater or equal than 0, currently is: {feature}")
+    # if len(x_train) == 0:
+    #     raise ValueError("x_train should have size > 0")
+    # if feature >= len(x_train[0]):
+    #     raise ValueError(
+    #         f"feature should be a valid index, currently is: {feature} but x_train has {len(x_train[0])} features")
 
     x_train_left = []
     y_train_left = []
@@ -59,10 +75,18 @@ def partizione(x_train, y_train, median, feature):
     return x_train_left, y_train_left, x_train_right, y_train_right
 
 
-def remainder(x_train, y_train, feature):
-    assert feature >= 0, "feature should be an integer >= 0"
-    assert len(x_train) > 0, "x_train should have size > 0"
-    assert feature < len(x_train[0]), "feature should be a valid index"
+def remainder(x_train: list, y_train: list[bool], feature: int):
+    assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
+    assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
+    assert isinstance(feature, int), "feature should be an int"
+
+    # if feature < 0:
+    #     raise ValueError(f"feature must be an int greater or equal than 0, currently is: {feature}")
+    # if len(x_train) == 0:
+    #     raise ValueError("x_train should have size > 0")
+    # if feature >= len(x_train[0]):
+    #     raise ValueError(
+    #         f"feature should be a valid index, currently is: {feature} but x_train has {len(x_train[0])} features")
 
     median = find_median(x_train, feature)
     partitions = partizione(x_train, y_train, median, feature)
@@ -88,7 +112,13 @@ def remainder(x_train, y_train, feature):
 
 
 def min_remainder(x_train, y_train, features):
-    assert len(features) > 0, "Should be greater than 0"
+    assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
+    assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
+    assert isinstance(features, list), "feature should be an int"
+
+    # if len(features) == 0:
+    #     raise ValueError("features should have size > 0")
+
     min_r = 1
     min_f = None
     for f in features:
@@ -104,17 +134,20 @@ def min_remainder(x_train, y_train, features):
 
 
 class MyDecisionTree:
-    def __init__(self, x_train, y_train):
-        assert len(x_train) == len(y_train), "x_train e y_train should be equal"
-        assert len(x_train) > 0, "x_train e y_train should not be empty"
-        assert len(x_train[0]) > 0, "x_train should contains non empty list"
+    def __init__(self, x_train: list, y_train: list):
+        if len(x_train) != len(y_train):
+            raise ValueError("x_train e y_train should have the same size")
+        if len(x_train) == 0:
+            raise ValueError("x_train e y_train should not be empty")
+        if len(x_train[0]) == 0:
+            raise ValueError("x_train should contains non empty list")
 
         # TODO: maybe a set is better than a list for "features"
         features = list(range(len(x_train[0])))
 
         self.tree = self._crea_albero(x_train, y_train, features, y_train)
 
-    def _crea_albero(self, x_train, y_train, features, y_train_parent):
+    def _crea_albero(self, x_train: list, y_train: list, features: list, y_train_parent: list) -> [TreeNode, bool]:
         if len(x_train) == 0:
             return plurality_value(y_train_parent)
 
@@ -140,3 +173,15 @@ class MyDecisionTree:
         right = self._crea_albero(x_train_right, y_train_right, features, y_train)
 
         return TreeNode(f, median, left, right)
+
+    def predict(self, x_test: list) -> list:
+        return [self._predict(x) for x in x_test]
+
+    def _predict(self, x: list) -> bool:
+        node = self.tree
+        while not isinstance(node, bool):
+            if x[node.feature] <= node.value:
+                node = node.left
+            else:
+                node = node.right
+        return node

@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 
 def binary_entropy(p: float) -> float:
@@ -29,7 +30,7 @@ def boolean_mode(boolean_list: [bool]) -> bool:
     return the most frequently repeated boolean element
     :param boolean_list: a list containing boolean value
     """
-    assert isinstance(boolean_list, list), "boolean_list should be a list object"
+    assert isinstance(boolean_list, list) or isinstance(boolean_list, np.ndarray), "boolean_list should be a list object"
     assert len(boolean_list) > 0, "boolean_list should not be empty"
 
     positive = len([y for y in boolean_list if y])
