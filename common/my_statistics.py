@@ -8,26 +8,31 @@ def binary_entropy(p: float) -> float:
 
     :param p: should be a value between 0 and 1
     """
-    assert 0 < p < 1, f"p deve essere compreso tra 0 e 1 esclusi; p={p}"
+
+    if p < 0 or p > 1:
+        raise ValueError(f"p must be a value between 0 and 1, currently is: {p}")
+
+    # confirmed by plot this function
+    if p == 0 or p == 1:
+        return 0
+
     return -p * math.log2(p) - (1 - p) * math.log2(1 - p)
 
 
 def h_entropy(p: float, n: float) -> float:
     """
     Return the binary entropy of p / (p + n)
-    if p or n are equals to 0, return is 0
+
     :param p: number of positive sample
     :param n: number of negative sample
     """
-    # TODO: check if this assumption is true
-    if n == 0 or p == 0:
-        return 0
     return binary_entropy(p / (p + n))
 
 
 def boolean_mode(boolean_list: [bool]) -> bool:
     """
     return the most frequently repeated boolean element
+
     :param boolean_list: a list containing boolean value
     """
     assert isinstance(boolean_list, list) or isinstance(boolean_list, np.ndarray), "boolean_list should be a list object"

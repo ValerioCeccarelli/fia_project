@@ -9,9 +9,6 @@ class TreeNode:
         assert isinstance(feature, int), "feature must be a int"
         assert isinstance(value, float), "value must be a float"
 
-        # if feature < 0:
-        #     raise ValueError(f"feature must be an int greater or equal than 0, currently is: {feature}")
-
         self.feature = feature
         self.value = value
         self.left = left
@@ -32,34 +29,20 @@ def find_median(x_train: list, feature: int):
     assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
     assert isinstance(feature, int), "feature should be an int"
 
-    # if feature < 0:
-    #     raise ValueError(f"feature must be an int greater or equal than 0, currently is: {feature}")
-    # if len(x_train) == 0:
-    #     raise ValueError("x_train should have size > 0")
-    # if feature >= len(x_train[0]):
-    #     raise ValueError(f"feature should be a valid index, currently is: {feature} but x_train has {len(x_train[0])} features")
-
     x_train = sorted(x_train, key=lambda x: x[feature])
     if len(x_train) % 2 != 0:
         return x_train[len(x_train) // 2][feature]
 
-    # TODO: check if this is correct
-    return (x_train[len(x_train) // 2][feature] + x_train[len(x_train) // 2 - 1][feature]) / 2
+    right = x_train[len(x_train) // 2][feature]
+    left = x_train[len(x_train) // 2 - 1][feature]
+    return (left + right) / 2
 
 
-def partizione(x_train: list, y_train: list[bool], median: float, feature: int):
+def make_partitions(x_train: list, y_train: list[bool], median: float, feature: int):
     assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
     assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
     assert isinstance(median, float), "median should be a float"
     assert isinstance(feature, int), "feature should be an int"
-
-    # if feature < 0:
-    #     raise ValueError(f"feature must be an int greater or equal than 0, currently is: {feature}")
-    # if len(x_train) == 0:
-    #     raise ValueError("x_train should have size > 0")
-    # if feature >= len(x_train[0]):
-    #     raise ValueError(
-    #         f"feature should be a valid index, currently is: {feature} but x_train has {len(x_train[0])} features")
 
     x_train_left = []
     y_train_left = []
@@ -75,21 +58,13 @@ def partizione(x_train: list, y_train: list[bool], median: float, feature: int):
     return x_train_left, y_train_left, x_train_right, y_train_right
 
 
-def remainder(x_train: list, y_train: list[bool], feature: int):
+def remainder(x_train: list, y_train: list[bool], feature: int) -> float:
     assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
     assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
     assert isinstance(feature, int), "feature should be an int"
 
-    # if feature < 0:
-    #     raise ValueError(f"feature must be an int greater or equal than 0, currently is: {feature}")
-    # if len(x_train) == 0:
-    #     raise ValueError("x_train should have size > 0")
-    # if feature >= len(x_train[0]):
-    #     raise ValueError(
-    #         f"feature should be a valid index, currently is: {feature} but x_train has {len(x_train[0])} features")
-
     median = find_median(x_train, feature)
-    partitions = partizione(x_train, y_train, median, feature)
+    partitions = make_partitions(x_train, y_train, median, feature)
     x_train_left, y_train_left, x_train_right, y_train_right = partitions
 
     p1 = len([x for x in y_train_left if x])
@@ -98,9 +73,9 @@ def remainder(x_train: list, y_train: list[bool], feature: int):
     p2 = len([x for x in y_train_right if x])
     n2 = len(y_train_right) - p2
 
-    # TODO: check if this is correct
-    if p1 == 0 or p2 == 0:
-        return 0
+    # if some partition is empty, the remainder is infinite because it means that the feature is useless
+    if p1+n1 == 0 or p2+n2 == 0:
+        return float("inf")
 
     h1 = h_entropy(p1, n1)
     r1 = h1 * (len(x_train_left) / len(x_train))
@@ -116,21 +91,10 @@ def min_remainder(x_train, y_train, features):
     assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
     assert isinstance(features, list), "feature should be an int"
 
-    # if len(features) == 0:
-    #     raise ValueError("features should have size > 0")
+    if len(features) == 0:
+        raise ValueError("features should have size > 0")
 
-    min_r = 1
-    min_f = None
-    for f in features:
-        r = remainder(x_train, y_train, f)
-        if min_f is None:
-            min_r = r
-            min_f = f
-        if r < min_r:
-            min_r = r
-            min_f = f
-
-    return min_f
+    return min([(f, remainder(x_train, y_train, f)) for f in features], key=lambda x: x[1])[0]
 
 
 class MyDecisionTree:
@@ -163,7 +127,7 @@ class MyDecisionTree:
         f = min_remainder(x_train, y_train, features)
         median = find_median(x_train, f)
 
-        partitions = partizione(x_train, y_train, median, f)
+        partitions = make_partitions(x_train, y_train, median, f)
         x_train_left, y_train_left, x_train_right, y_train_right = partitions
 
         features = features.copy()
@@ -175,12 +139,15 @@ class MyDecisionTree:
         return TreeNode(f, median, left, right)
 
     def predict(self, x_test: list) -> list:
-        return [self._predict(x) for x in x_test]
+        assert isinstance(x_test, list) or isinstance(x_test, np.ndarray), "x_train_row should be a list or a numpy array"
+        return [self.predict_single(x) for x in x_test]
 
-    def _predict(self, x: list) -> bool:
+    def predict_single(self, x_train_row: list) -> bool:
+        assert isinstance(x_train_row, list) or isinstance(x_train_row, np.ndarray), "x_train_row should be a list or a numpy array"
+
         node = self.tree
         while not isinstance(node, bool):
-            if x[node.feature] <= node.value:
+            if x_train_row[node.feature] <= node.value:
                 node = node.left
             else:
                 node = node.right
