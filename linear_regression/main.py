@@ -1,61 +1,86 @@
 import random
 
 
-# ins = [
-#     (1,2),
-#     (2,1),
-#     (2,2),
-#     (2,3),
-#     (3,2),
-#     (4,3),
-#
-#     (6,5),
-#     (7,4),
-#     (7,5),
-#     (7,6),
-#     (8,4),
-#     (8,5),
-#     (9,5)
-# ]
-
+m_vera = 20
+b_vera = 50
 
 def f(x):
-    return 50 * x + 20
+    return m_vera * x + b_vera
+
+def generate_data(n):
+    data = []
+    for i in range(n):
+        x = random.random() * 100
+        y = f(x) + random.random() * 10 - 5
+        data.append((x, y))
+    return data
+
+def linear_regression(data):
+    x_sum = 0
+    y_sum = 0
+    x2_sum = 0
+    xy_sum = 0
+    n = len(data)
+    for x, y in data:
+        x_sum += x
+        y_sum += y
+        x2_sum += x * x
+        xy_sum += x * y
+    m = (n * xy_sum - x_sum * y_sum) / (n * x2_sum - x_sum * x_sum)
+    b = (y_sum - m * x_sum) / n
+    return m, b
+
+w = [50, 20, 65]
+
+def fw(x):
+    return w[2] * x[1] + w[1] * x[0] + w[0]
+
+def generate_data2(n):
+    data = []
+    for i in range(n):
+        x = random.random() * 100
+        y = random.random() * 100
+        z = fw((x, y)) + random.random() * 10 - 5
+        data.append((x, y, z))
+    return data
+
+def multivariate_linear_regression(data):
+    x1_sum = 0
+    x2_sum = 0
+    y_sum = 0
+    x1x2_sum = 0
+    x1y_sum = 0
+    x2y_sum = 0
+    x1x1_sum = 0
+    x2x2_sum = 0
+    n = len(data)
+    for x1, x2, y in data:
+        x1_sum += x1
+        x2_sum += x2
+        y_sum += y
+        x1x2_sum += x1 * x2
+        x1y_sum += x1 * y
+        x2y_sum += x2 * y
+        x1x1_sum += x1 * x1
+        x2x2_sum += x2 * x2
+    a = (n * x1x2_sum - x1_sum * x2_sum) / (n * x1x1_sum - x1_sum * x1_sum)
+    b = (x2_sum - a * x1_sum) / n
+    c = (n * x1y_sum - x1_sum * y_sum) / (n * x1x1_sum - x1_sum * x1_sum)
+    d = (n * x2y_sum - x2_sum * y_sum) / (n * x2x2_sum - x2_sum * x2_sum)
+    e = (y_sum - c * x1_sum - d * x2_sum) / n
+    return a, b, c, d, e
 
 
-ins = []
-for i in range(1000):
-    my_rand = random.randint(-100, 100) % 100 / 10
-    ins.append((i, f(i) + my_rand))
+def main():
+    data = generate_data(1000)
+    m, b = linear_regression(data)
+    print(m, b)
+    print(f(4))
 
-random.shuffle(ins)
+    data2 = generate_data2(1000)
+    a, b, c, d, e = multivariate_linear_regression(data2)
+    print(a, b, c, d, e)
+    print(fw((4, 5)))
 
-m_stimata = 1
-q_stimata = 1
-
-eps = 0.0001
-learning_rate = 0.00001
-
-error_sum = float("inf")
-
-while abs(error_sum) > eps:
-    error_sum = 0
-    error_sum_by_x = 0
-
-    for i in range(10):
-        for i in range(i*100, (i+1)*100):
-            x, y = ins[i]
-            error = y - (m_stimata * x + q_stimata)
-            error_sum += error
-            error_sum_by_x += error * x
-    # for x, y in ins:
-    #     error = y - (m_stimata * x + q_stimata)
-    #     error_sum += error
-    #     error_sum_by_x += error * x
-
-        m_stimata += learning_rate * error_sum_by_x / len(ins)
-        q_stimata += learning_rate * error_sum
-
-    print(f"m_stimata: {m_stimata}, q_stimata: {q_stimata}, error_sum: {error_sum}")
-    learning_rate *= 0.99
-
+if __name__ == '__main__':
+    main()

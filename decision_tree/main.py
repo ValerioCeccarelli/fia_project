@@ -8,14 +8,15 @@ import time
 
 def predict_with_sklearn(x_train, y_train, x_test, y_test) -> float:
     clf = tree.DecisionTreeClassifier(criterion="entropy")  # max_depth=15
-    clf = clf.fit(x_train, y_train)
+    clf.fit(x_train, y_train)
 
     y_predict = clf.predict(x_test)
     return accuracy_score(y_test, y_predict)
 
 
 def predict_with_my_decision_tree(x_train, y_train, x_test, y_test) -> float:
-    my_tree = MyDecisionTree(x_train, y_train)
+    my_tree = MyDecisionTree()
+    my_tree.fit(x_train, y_train)
 
     y_predict = my_tree.predict(x_test)
     return accuracy_score(y_test, y_predict)

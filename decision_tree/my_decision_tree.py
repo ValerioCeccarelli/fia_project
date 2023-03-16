@@ -98,7 +98,21 @@ def min_remainder(x_train, y_train, features):
 
 
 class MyDecisionTree:
-    def __init__(self, x_train: list, y_train: list):
+    """
+    This class is used to train and stores a binary decision tree classifier that splits the data of every feature
+    using their median.\n
+    Use the "fit" method to train the classifier and the "predict" method to predict the class of a new sample.
+    """
+    def __init__(self):
+        self.tree = None
+
+    def fit(self, x_train: list, y_train: list) -> None:
+        """
+        This method is used to train the classifier.
+
+        :param x_train: a matrix where each row is a sample and each column is a feature
+        :param y_train: a list of boolean values where each value is the class of the corresponding sample
+        """
         if len(x_train) != len(y_train):
             raise ValueError("x_train e y_train should have the same size")
         if len(x_train) == 0:
@@ -109,9 +123,9 @@ class MyDecisionTree:
         # TODO: maybe a set is better than a list for "features"
         features = list(range(len(x_train[0])))
 
-        self.tree = self._crea_albero(x_train, y_train, features, y_train)
+        self.tree = self._make_tree(x_train, y_train, features, y_train)
 
-    def _crea_albero(self, x_train: list, y_train: list, features: list, y_train_parent: list) -> [TreeNode, bool]:
+    def _make_tree(self, x_train: list, y_train: list, features: list, y_train_parent: list) -> [TreeNode, bool]:
         if len(x_train) == 0:
             return plurality_value(y_train_parent)
 
@@ -130,11 +144,11 @@ class MyDecisionTree:
         partitions = make_partitions(x_train, y_train, median, f)
         x_train_left, y_train_left, x_train_right, y_train_right = partitions
 
-        features = features.copy()
         features.remove(f)
+        left = self._make_tree(x_train_left, y_train_left, features, y_train)
 
-        left = self._crea_albero(x_train_left, y_train_left, features, y_train)
-        right = self._crea_albero(x_train_right, y_train_right, features, y_train)
+        right = self._make_tree(x_train_right, y_train_right, features, y_train)
+        features.append(f)
 
         return TreeNode(f, median, left, right)
 
@@ -144,6 +158,9 @@ class MyDecisionTree:
 
     def predict_single(self, x_train_row: list) -> bool:
         assert isinstance(x_train_row, list) or isinstance(x_train_row, np.ndarray), "x_train_row should be a list or a numpy array"
+
+        if self.tree is None:
+            raise ValueError('You should train the model before using it; use the "fit" method')
 
         node = self.tree
         while not isinstance(node, bool):
