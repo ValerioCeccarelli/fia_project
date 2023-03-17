@@ -2,7 +2,6 @@ import random
 
 import numpy as np
 
-
 # def f(x):
 #     return 60 * x + -300
 #
@@ -86,9 +85,12 @@ import numpy as np
 import numpy as np
 from common.read_dataset import read_dataset_with_pandas
 
+from sklearn import preprocessing
+
 df = read_dataset_with_pandas("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
 
 data = np.array(df)
+data = preprocessing.scale(data)
 x_data = list(data[:, :-1])
 for i in range(len(x_data)):
     x_data[i] = list(x_data[i])
@@ -99,17 +101,19 @@ x_data = np.array(x_data)
 Y_data = np.array([data[:, -1]]).T
 print(Y_data.shape)
 
-
-
 w = np.array([[0.0] for _ in range(len(x_data[0]))])
 
 L = 0.005
-for epoch in range(1):
-    for i in range(0, len(x_data), 100):
-        cache = x_data[i: i+100]
+for epoch in range(100):
+    for i in range(0, len(x_data), 10):
+        cache = x_data[i: i + 100]
         mom = np.matmul(cache, w)
-        mom = mom - Y_data[i: i+100]
+        mom = mom - Y_data[i: i + 100]
         d_j = 1 / 100 * np.matmul(cache.T, mom)
         w -= L * d_j
 
 print(w)
+y_pred = np.matmul(x_data, w)
+
+for i in range(len(Y_data)):
+    print(f"{Y_data[i]} -- {y_pred[i]}")
