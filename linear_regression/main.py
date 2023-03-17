@@ -1,86 +1,74 @@
 import random
 
 
-m_vera = 20
-b_vera = 50
+# def f(w, x):
+#     res = 0
+#     for i in range(len(x)):
+#         res += w[i] * x[i]
+#     return res
+#
+#
+# ins_x = [(x, 1) for x in range(100)]
+# random.shuffle(ins_x)
+#
+# ins_y = [f((30,70), x) for x in ins_x]
+#
+# w = [0, 0]
+# L = 0.0001  # The learning Rate
+# epochs = 10000  # The number of iterations to perform gradient descent
+#
+# n = float(len(ins_x))  # Number of elements in X
+#
+# # Performing Gradient Descent
+# for i in range(epochs):
+#     for j in range(len(ins_x)):
+#         x = ins_x[j]
+#         y = ins_y[j]
+#         Y_pred = f(w, x)
+#         for k in range(len(w)):
+#             w[k] -= L * (Y_pred - y) * x[k]
+#
+# print(w)
 
-def f(x):
-    return m_vera * x + b_vera
+# w = [0, 0]
+#
+# for i in range(epochs):
+#     for j in range(len(ins_x)):
+#         x = ins_x[j]
+#         y = ins_y[j]
+#         Y_pred = f(w, x)
+#         # for k in range(len(w)):
+#         #     w[k] -= L * (Y_pred - y) * x[k]
+#
+#         w -= L * (Y_pred - y) * x
 
-def generate_data(n):
-    data = []
-    for i in range(n):
-        x = random.random() * 100
-        y = f(x) + random.random() * 10 - 5
-        data.append((x, y))
-    return data
-
-def linear_regression(data):
-    x_sum = 0
-    y_sum = 0
-    x2_sum = 0
-    xy_sum = 0
-    n = len(data)
-    for x, y in data:
-        x_sum += x
-        y_sum += y
-        x2_sum += x * x
-        xy_sum += x * y
-    m = (n * xy_sum - x_sum * y_sum) / (n * x2_sum - x_sum * x_sum)
-    b = (y_sum - m * x_sum) / n
-    return m, b
-
-w = [50, 20, 65]
-
-def fw(x):
-    return w[2] * x[1] + w[1] * x[0] + w[0]
-
-def generate_data2(n):
-    data = []
-    for i in range(n):
-        x = random.random() * 100
-        y = random.random() * 100
-        z = fw((x, y)) + random.random() * 10 - 5
-        data.append((x, y, z))
-    return data
-
-def multivariate_linear_regression(data):
-    x1_sum = 0
-    x2_sum = 0
-    y_sum = 0
-    x1x2_sum = 0
-    x1y_sum = 0
-    x2y_sum = 0
-    x1x1_sum = 0
-    x2x2_sum = 0
-    n = len(data)
-    for x1, x2, y in data:
-        x1_sum += x1
-        x2_sum += x2
-        y_sum += y
-        x1x2_sum += x1 * x2
-        x1y_sum += x1 * y
-        x2y_sum += x2 * y
-        x1x1_sum += x1 * x1
-        x2x2_sum += x2 * x2
-    a = (n * x1x2_sum - x1_sum * x2_sum) / (n * x1x1_sum - x1_sum * x1_sum)
-    b = (x2_sum - a * x1_sum) / n
-    c = (n * x1y_sum - x1_sum * y_sum) / (n * x1x1_sum - x1_sum * x1_sum)
-    d = (n * x2y_sum - x2_sum * y_sum) / (n * x2x2_sum - x2_sum * x2_sum)
-    e = (y_sum - c * x1_sum - d * x2_sum) / n
-    return a, b, c, d, e
+def f(w, x):
+    res = 0
+    for i in range(len(x)):
+        res += w[i] * x[i]
+    return res
 
 
-def main():
-    data = generate_data(1000)
-    m, b = linear_regression(data)
-    print(m, b)
-    print(f(4))
+ins_x = [(x, 1) for x in range(100)]
+random.shuffle(ins_x)
 
-    data2 = generate_data2(1000)
-    a, b, c, d, e = multivariate_linear_regression(data2)
-    print(a, b, c, d, e)
-    print(fw((4, 5)))
+w_vero = (5, 8)
+ins_y = [f(w_vero, x) for x in ins_x]
 
-if __name__ == '__main__':
-    main()
+w = [0, 0]
+L = 0.01  # The learning Rate
+epochs = 100  # The number of iterations to perform gradient descent
+
+n = float(len(ins_x))  # Number of elements in X
+
+# Performing Gradient Descent
+for epochs in range(epochs):
+    for i in range(len(w)):
+        sum = 0
+        for j in range(len(ins_x)):
+            X_j = ins_x[j]
+            Y_j = ins_y[j]
+            sum += (Y_j - f(w, X_j)) * X_j[i]
+        w[i] += L * sum
+
+print(w)
