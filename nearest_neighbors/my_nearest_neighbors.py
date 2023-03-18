@@ -33,21 +33,19 @@ class MyNearestNeighborsClassifier:
         self._x_train = x_train
         self._y_train = y_train
 
-    def predict(self, x_test: list) -> list[bool]:
-        assert isinstance(x_test, list) or isinstance(x_test, np.ndarray), "x_test should be a list or a numpy array"
+    def predict(self, x_tests: list) -> list[bool]:
+        assert isinstance(x_tests, list) or isinstance(x_tests, np.ndarray), "x_test should be a list or a numpy array"
 
         if self._x_train is None or self._y_train is None:
             raise ValueError("You should fit the model first")
 
-        if isinstance(x_test, list):
-            x_test = np.array(x_test)
+        if isinstance(x_tests, list):
+            x_tests = np.array(x_tests)
 
         results = []
-        for test in x_test:
-            temp = self._x_train - test
-            dist = np.linalg.norm(temp, ord=self._distance, axis=1)
-            min = np.argmin(dist, axis=0)
-            results.append(self._y_train[min])
+        for test in x_tests:
+            result = self.predict_single(test)
+            results.append(result)
         return results
 
     def predict_single(self, x_test: list) -> bool:
@@ -59,15 +57,9 @@ class MyNearestNeighborsClassifier:
         if isinstance(x_test, list):
             x_test = np.array(x_test)
 
-        best = []
-        for train, y in zip(self._x_train, self._y_train):
-            distance = np.linalg.norm(x_test - train, ord=self._distance)
-            if len(best) < self._k_nearest:
-                best.append((distance, y))
-            else:
-                best.sort(key=lambda x: x[0])
-                if distance < best[-1][0]:
-                    best[-1] = (distance, y)
-
-        best.sort(key=lambda x: x[0])
-        return best[0][1]
+        temp = self._x_train - x_test
+        dist = np.linalg.norm(temp, ord=self._distance, axis=1)
+        min = np.argpartition(dist, self._k_nearest)[:self._k_nearest]
+        n_positive = len([x for x in self._y_train[min] if x])
+        result = True if n_positive > self._k_nearest / 2 else False
+        return result
