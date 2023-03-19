@@ -1,18 +1,19 @@
 from sklearn.model_selection import train_test_split
-from common.read_dataset import read_dataset_with_numpy
-from sklearn.metrics import accuracy_score
-from sklearn.neighbors import KNeighborsClassifier
+from common.read_dataset import read_dataset_for_regression, read_dataset_for_classification
+from sklearn.metrics import accuracy_score, mean_squared_error
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 import time
-from nearest_neighbors.my_nearest_neighbors import MyNearestNeighborsClassifier
-import numpy as np
+from nearest_neighbors.my_nearest_neighbors import MyNearestNeighborsClassifier, MyNearestNeighborsRegressor
 
-def predict_with_sklearn(x_train, y_train, x_test, y_test) -> float:
+
+def predict_classifier_with_sklearn(x_train, y_train, x_test, y_test) -> float:
     classifier = KNeighborsClassifier(n_neighbors=5, p=2)
     classifier.fit(x_train, y_train)
     y_predict = classifier.predict(x_test)
     return accuracy_score(y_test, y_predict)
 
-def predict_with_my_nearest_neighbors(x_train, y_train, x_test, y_test) -> float:
+
+def predict_classifier_with_my_nearest_neighbors(x_train, y_train, x_test, y_test) -> float:
     classifier = MyNearestNeighborsClassifier(distance=2, k_nearest=5)
     classifier.fit(x_train, y_train)
 
@@ -20,28 +21,58 @@ def predict_with_my_nearest_neighbors(x_train, y_train, x_test, y_test) -> float
     return accuracy_score(y_test, y_predict)
 
 
-x_data, y_data = read_dataset_with_numpy("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
+def predict_regressor_with_sklearn(x_train, y_train, x_test, y_test) -> float:
+    regressor = KNeighborsRegressor(n_neighbors=5, p=2)
+    regressor.fit(x_train, y_train)
+    y_predict = regressor.predict(x_test)
+    return mean_squared_error(y_test, y_predict)
+
+
+def predict_regressor_with_my_nearest_neighbors(x_train, y_train, x_test, y_test) -> float:
+    regressor = MyNearestNeighborsRegressor(distance=2, k_nearest=5)
+    regressor.fit(x_train, y_train)
+
+    y_predict = regressor.predict(x_test)
+    return mean_squared_error(y_test, y_predict)
+
+
+
+print("CLASSIFICATION\n")
+x_data, y_data = read_dataset_for_classification("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
 x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2, random_state=1)
 
 print("------------------------------------------------------------------")
+
 start = time.time()
-sklearn_accuracy = predict_with_sklearn(x_train, y_train, x_test, y_test)
+sklearn_accuracy = predict_classifier_with_sklearn(x_train, y_train, x_test, y_test)
 end = time.time()
 print(f"sklearn accuracy: {sklearn_accuracy}\nin {end - start} seconds")
 
 print("------------------------------------------------------------------")
+
 start = time.time()
-my_accuracy = predict_with_my_nearest_neighbors(x_train, y_train, x_test, y_test)
+my_accuracy = predict_classifier_with_my_nearest_neighbors(x_train, y_train, x_test, y_test)
 end = time.time()
 print(f"my accuracy: {my_accuracy}\nin {end - start} seconds")
 
 print("------------------------------------------------------------------")
 
-# start = time.time()
-# x_train = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
-# y_train = np.array([10, 20, 30, 40])
-# x_test = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-# y_test = np.array([10, 20, 30])
-# my_accuracy = predict_with_my_nearest_neighbors(x_train, y_train, x_test, y_test)
-# end = time.time()
-# print(f"{my_accuracy} in {end - start} seconds")
+print("\n\nREGRESSION\n")
+x_data, y_data = read_dataset_for_regression("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
+x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2, random_state=1)
+
+print("------------------------------------------------------------------")
+
+start = time.time()
+sklearn_accuracy = predict_regressor_with_sklearn(x_train, y_train, x_test, y_test)
+end = time.time()
+print(f"sklearn accuracy: {sklearn_accuracy}\nin {end - start} seconds")
+
+print("------------------------------------------------------------------")
+
+start = time.time()
+my_accuracy = predict_regressor_with_my_nearest_neighbors(x_train, y_train, x_test, y_test)
+end = time.time()
+print(f"my accuracy: {my_accuracy}\nin {end - start} seconds")
+
+print("------------------------------------------------------------------")

@@ -1,4 +1,4 @@
-from common.read_dataset import read_dataset_with_numpy
+from common.read_dataset import read_dataset_for_classification
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn import tree
@@ -22,7 +22,7 @@ def predict_with_my_decision_tree(x_train, y_train, x_test, y_test) -> float:
     return accuracy_score(y_test, y_predict)
 
 
-x_data, y_data = read_dataset_with_numpy("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
+x_data, y_data = read_dataset_for_classification("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
 x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2, random_state=1)
 
 print("------------------------------------------------------------------")
