@@ -34,12 +34,12 @@ the decision boundary is a diagonal line, and all decision tree tests divide the
     ```
 3) Download the dataset
     ```cmd
-    ./dataset/download_dataset.sh
+    python .\dataset\download_dataset.py .\dataset
     ```
    Is available a download file also for powershell (.ps1)
 4) Run the desired python algorithm (for example the "decision tree")
     ```cmd
-    python ./decision_tree/main.py
+    python .\decision_tree\main.py
     ```
 
 
