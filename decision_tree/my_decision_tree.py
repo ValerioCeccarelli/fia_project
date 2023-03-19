@@ -1,8 +1,11 @@
-from common.my_statistics import h_entropy, boolean_mode
 import numpy as np
+import math
 
 
 class TreeNode:
+    """
+    A node in a decision tree, this class is used only to represent the tree structure (it does not contain any logic)
+    """
     def __init__(self, feature: int, value: float, left, right):
         assert isinstance(left, bool) or isinstance(left, TreeNode), f"left must be a TreeNode object or a boolean value but is: {type(left)}"
         assert isinstance(right, bool) or isinstance(right, TreeNode), "right must be a TreeNode object or a boolean value"
@@ -14,15 +17,51 @@ class TreeNode:
         self.left = left
         self.right = right
 
-    def __str__(self):
-        return str([self.feature, self.value, self.left, self.right])
 
-    def __repr__(self):
-        return str(self)
+def binary_entropy(p: float) -> float:
+    """
+    Return the entropy of a binary source with 2 symbols of probability "p" and "1-p"
+
+    :param p: should be a value between 0 and 1
+    """
+
+    if p < 0 or p > 1:
+        raise ValueError(f"p must be a value between 0 and 1, currently is: {p}")
+
+    # confirmed by plot this function
+    if p == 0 or p == 1:
+        return 0
+
+    return -p * math.log2(p) - (1 - p) * math.log2(1 - p)
+
+
+def h_entropy(p: float, n: float) -> float:
+    """
+    Return the binary entropy of p / (p + n)
+
+    :param p: number of positive sample
+    :param n: number of negative sample
+    """
+    return binary_entropy(p / (p + n))
 
 
 def plurality_value(y_train: list[bool]) -> bool:
-    return boolean_mode(y_train)
+    """
+    return the most frequently repeated boolean element
+
+    :param y_train: a list containing boolean value
+    """
+    assert isinstance(y_train, list), "boolean_list should be a list object"
+
+    if len(y_train) == 0:
+        raise ValueError("y_train should not be empty")
+
+    positive = len([y for y in y_train if y])
+    if positive >= len(y_train) / 2:
+        return True
+
+    # TODO: the pseudocode says to choose random if there is a tie
+    return False
 
 
 def find_median(x_train: list, feature: int):
@@ -59,6 +98,9 @@ def make_partitions(x_train: list, y_train: list[bool], median: float, feature: 
 
 
 def remainder(x_train: list, y_train: list[bool], feature: int) -> float:
+    """
+    Return the remainder of the partition using the feature
+    """
     assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
     assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
     assert isinstance(feature, int), "feature should be an int"
@@ -86,7 +128,17 @@ def remainder(x_train: list, y_train: list[bool], feature: int) -> float:
     return r1 + r2
 
 
-def min_remainder(x_train, y_train, features):
+def min_remainder(x_train: list, y_train: list, features: list[int]) -> int:
+    """
+    This function is used to find the feature that minimizes the remainder.\n
+    In theory we should maximize the information gain, but since the first part
+    of the gain formula it's the same for all the features, we can directly calculate
+    the minimum reminder
+    :param x_train: x train set
+    :param y_train: y train set
+    :param features: iterable list of features
+    :return: the feature that minimizes the remainder
+    """
     assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
     assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
     assert isinstance(features, list), "feature should be an int"
@@ -152,7 +204,7 @@ class MyDecisionTree:
 
         return TreeNode(f, median, left, right)
 
-    def predict(self, x_test: list) -> list:
+    def predict(self, x_test: list) -> list[bool]:
         assert isinstance(x_test, list) or isinstance(x_test, np.ndarray), "x_train_row should be a list or a numpy array"
         return [self.predict_single(x) for x in x_test]
 
