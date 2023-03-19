@@ -1,20 +1,19 @@
 from sklearn.model_selection import train_test_split
 from common.read_dataset import read_dataset_with_numpy
 from sklearn.metrics import accuracy_score
-from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import KNeighborsClassifier
 import time
 from nearest_neighbors.my_nearest_neighbors import MyNearestNeighborsClassifier
 import numpy as np
 
 def predict_with_sklearn(x_train, y_train, x_test, y_test) -> float:
-    # classifier = NearestNeighbors(n_neighbors=1, p=2)
-    # classifier = classifier.fit(x_train, y_train)
-    # y_predict = classifier.predict(x_test)
-    # return accuracy_score(y_test, y_predict)
-    return 0
+    classifier = KNeighborsClassifier(n_neighbors=5, p=2)
+    classifier.fit(x_train, y_train)
+    y_predict = classifier.predict(x_test)
+    return accuracy_score(y_test, y_predict)
 
 def predict_with_my_nearest_neighbors(x_train, y_train, x_test, y_test) -> float:
-    classifier = MyNearestNeighborsClassifier(distance=2, k_nearest=1)
+    classifier = MyNearestNeighborsClassifier(distance=2, k_nearest=5)
     classifier.fit(x_train, y_train)
 
     y_predict = classifier.predict(x_test)
