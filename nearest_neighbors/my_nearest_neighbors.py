@@ -1,14 +1,23 @@
 import numpy as np
-import statistics
 
 
 class MyNearestNeighborsClassifier:
+    """
+    This class implements a K Nearest Neighbors classifier\n
+    A prediction is made by calculating the distance between the point to predict and the
+    training points and then taking the majority vote of the k nearest points (k is 5 by default).\n
+    The distance is a Minkowski distance with p=2 by default (Euclidean distance).\n
+    """
 
     def __init__(self, distance=2, k_nearest=5):
+        """
+        :param distance: represents the p parameter of the Minkowski distance
+        :param k_nearest: the number of nearest neighbors to take into account
+        """
         assert isinstance(distance, int), "distance should be a integer"
         assert isinstance(k_nearest, int), "k_nearest should be an integer"
 
-        if distance <= 0:
+        if distance < 1:
             raise ValueError("distance should be positive and non zero")
         if k_nearest < 1:
             raise ValueError("k_nearest should be positive and non zero")
@@ -20,6 +29,9 @@ class MyNearestNeighborsClassifier:
         self._y_train = None
 
     def fit(self, x_train: list, y_train: list[bool]):
+        """
+        This method doesn't contain any particular logic, it only stores the training data
+        """
         assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
         assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
 
@@ -35,6 +47,9 @@ class MyNearestNeighborsClassifier:
         self._y_train = y_train
 
     def predict(self, x_tests: list) -> list[bool]:
+        """
+        This method predicts the class of each element in x_tests
+        """
         assert isinstance(x_tests, list) or isinstance(x_tests, np.ndarray), "x_test should be a list or a numpy array"
 
         if self._x_train is None or self._y_train is None:
@@ -50,6 +65,9 @@ class MyNearestNeighborsClassifier:
         return results
 
     def predict_single(self, x_test: list) -> bool:
+        """
+        This method predicts the class of a single element
+        """
         assert isinstance(x_test, list) or isinstance(x_test, np.ndarray), "x_test should be a list or a numpy array"
 
         if self._x_train is None or self._y_train is None:
@@ -58,17 +76,27 @@ class MyNearestNeighborsClassifier:
         if isinstance(x_test, list):
             x_test = np.array(x_test)
 
-        temp = self._x_train - x_test
-        dist = np.linalg.norm(temp, ord=self._distance, axis=1)
-        min = np.argpartition(dist, self._k_nearest)[:self._k_nearest]
+        differences = self._x_train - x_test
+        distances = np.linalg.norm(differences, ord=self._distance, axis=1)
+        min = np.argpartition(distances, self._k_nearest)[:self._k_nearest]
         n_positive = len([x for x in self._y_train[min] if x])
         result = True if n_positive > self._k_nearest / 2 else False
         return result
 
 
 class MyNearestNeighborsRegressor:
+    """
+    This class implements a K Nearest Neighbors regressor\n
+    A prediction is made by calculating the distance between the point to predict and the
+    training points and then taking the mean value of the k nearest points (k is 5 by default).\n
+    The distance is a Minkowski distance with p=2 by default (Euclidean distance).\n
+    """
 
     def __init__(self, distance=2, k_nearest=5):
+        """
+        :param distance: represents the p parameter of the Minkowski distance
+        :param k_nearest: the number of nearest neighbors to take into account
+        """
         assert isinstance(distance, int), "distance should be a integer"
         assert isinstance(k_nearest, int), "k_nearest should be an integer"
 
@@ -84,6 +112,9 @@ class MyNearestNeighborsRegressor:
         self._y_train = None
 
     def fit(self, x_train: list, y_train: list):
+        """
+        This method doesn't contain any particular logic, it only stores the training data
+        """
         assert isinstance(x_train, list) or isinstance(x_train, np.ndarray), "x_train should be a list or a numpy array"
         assert isinstance(y_train, list) or isinstance(y_train, np.ndarray), "y_train should be a list or a numpy array"
 
@@ -99,6 +130,9 @@ class MyNearestNeighborsRegressor:
         self._y_train = y_train
 
     def predict(self, x_tests: list) -> list[float]:
+        """
+        This method predicts the class of each element in x_tests
+        """
         assert isinstance(x_tests, list) or isinstance(x_tests, np.ndarray), "x_test should be a list or a numpy array"
 
         if self._x_train is None or self._y_train is None:
@@ -114,6 +148,9 @@ class MyNearestNeighborsRegressor:
         return results
 
     def predict_single(self, x_test: list) -> float:
+        """
+        This method predicts the class of a single element
+        """
         assert isinstance(x_test, list) or isinstance(x_test, np.ndarray), "x_test should be a list or a numpy array"
 
         if self._x_train is None or self._y_train is None:
@@ -122,8 +159,8 @@ class MyNearestNeighborsRegressor:
         if isinstance(x_test, list):
             x_test = np.array(x_test)
 
-        temp = self._x_train - x_test
-        dist = np.linalg.norm(temp, ord=self._distance, axis=1)
-        k_min = np.argpartition(dist, self._k_nearest)[:self._k_nearest]
+        differences = self._x_train - x_test
+        distances = np.linalg.norm(differences, ord=self._distance, axis=1)
+        k_min = np.argpartition(distances, self._k_nearest)[:self._k_nearest]
         mean = np.mean(self._y_train[k_min])
         return mean
