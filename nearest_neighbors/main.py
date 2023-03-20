@@ -25,7 +25,7 @@ def predict_regressor_with_sklearn(x_train, y_train, x_test, y_test) -> float:
     regressor = KNeighborsRegressor(n_neighbors=5, p=2)
     regressor.fit(x_train, y_train)
     y_predict = regressor.predict(x_test)
-    return mean_squared_error(y_test, y_predict)
+    return mean_squared_error(y_test, y_predict, squared=False)
 
 
 def predict_regressor_with_my_nearest_neighbors(x_train, y_train, x_test, y_test) -> float:
@@ -33,7 +33,7 @@ def predict_regressor_with_my_nearest_neighbors(x_train, y_train, x_test, y_test
     regressor.fit(x_train, y_train)
 
     y_predict = regressor.predict(x_test)
-    return mean_squared_error(y_test, y_predict)
+    return mean_squared_error(y_test, y_predict, squared=False)
 
 
 

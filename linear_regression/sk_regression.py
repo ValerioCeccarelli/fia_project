@@ -56,17 +56,17 @@ def Multivariable_Linear_Regression(X,y,learningrate, iterations):
         theta = theta - learningrate * gradients
     return theta
 
-# start = time.time()
-# theta = Multivariable_Linear_Regression(x_train, y_train, 0.00001, 1000)
-# end = time.time()
-#
-# print(theta)
-
-ins_x = np.array([[i] for i in range(100)])
-ins_y = np.array([2*x+3 for x in ins_x])
-
 start = time.time()
-theta = Multivariable_Linear_Regression(ins_x, ins_y, 0.0001, 100000)
+theta = Multivariable_Linear_Regression(x_train, y_train, 0.00001, 1000)
 end = time.time()
+
+print(theta)
+
+# ins_x = np.array([[i] for i in range(100)])
+# ins_y = np.array([20*x+30 for x in ins_x])
+#
+# start = time.time()
+# theta = Multivariable_Linear_Regression(ins_x, ins_y, 0.0001, 100000)
+# end = time.time()
 
 print(f"theta: {theta} in {end - start} seconds")
