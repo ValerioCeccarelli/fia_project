@@ -1,74 +1,56 @@
-import random
+from common.read_dataset import read_dataset_for_classification
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import SGDRegressor
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+import numpy as np
+
+x_data, y_data = read_dataset_for_classification("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
+
+x_data = StandardScaler().fit(x_data).transform(x_data)
+
+x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2, random_state=1)
+
+sk_regressor = SGDRegressor(penalty=None, max_iter=100000000, shuffle=False, learning_rate="constant", eta0=0.00001,
+                            early_stopping=False)
+sk_regressor = sk_regressor.fit(x_train, y_train)
+sk_y_pred = sk_regressor.predict(x_test)
+
+print(f"scikit RMSE: {metrics.mean_squared_error(y_test, sk_y_pred, squared=False)}")
 
 
-# def f(w, x):
-#     res = 0
-#     for i in range(len(x)):
-#         res += w[i] * x[i]
-#     return res
-#
-#
-# ins_x = [(x, 1) for x in range(100)]
-# random.shuffle(ins_x)
-#
-# ins_y = [f((30,70), x) for x in ins_x]
-#
-# w = [0, 0]
-# L = 0.0001  # The learning Rate
-# epochs = 10000  # The number of iterations to perform gradient descent
-#
-# n = float(len(ins_x))  # Number of elements in X
-#
-# # Performing Gradient Descent
-# for i in range(epochs):
-#     for j in range(len(ins_x)):
-#         x = ins_x[j]
-#         y = ins_y[j]
-#         Y_pred = f(w, x)
-#         for k in range(len(w)):
-#             w[k] -= L * (Y_pred - y) * x[k]
-#
-# print(w)
-
-# w = [0, 0]
-#
-# for i in range(epochs):
-#     for j in range(len(ins_x)):
-#         x = ins_x[j]
-#         y = ins_y[j]
-#         Y_pred = f(w, x)
-#         # for k in range(len(w)):
-#         #     w[k] -= L * (Y_pred - y) * x[k]
-#
-#         w -= L * (Y_pred - y) * x
-
-def f(w, x):
-    res = 0
-    for i in range(len(x)):
-        res += w[i] * x[i]
-    return res
+def generateXvector(X):
+    vectorX = np.c_[np.ones((len(X), 1)), X]
+    return vectorX
 
 
-ins_x = [(x, 1) for x in range(100)]
-random.shuffle(ins_x)
+def theta_init(X):
+    theta = np.random.randn(len(X[0]) + 1, 1)
+    return theta
 
-w_vero = (5, 8)
-ins_y = [f(w_vero, x) for x in ins_x]
 
-w = [0, 0]
-L = 0.01  # The learning Rate
-epochs = 100  # The number of iterations to perform gradient descent
+def Multivariable_Linear_Regression(X, y, learningrate, iterations):
+    y_new = np.reshape(y, (len(y), 1))
+    vectorX = generateXvector(X)
+    theta = theta_init(X)
+    m = len(X)
+    for i in range(iterations):
+        gradients = 2 / m * vectorX.T.dot(vectorX.dot(theta) - y_new)
+        theta = theta - learningrate * gradients
+    return theta
 
-n = float(len(ins_x))  # Number of elements in X
 
-# Performing Gradient Descent
-for epochs in range(epochs):
-    for i in range(len(w)):
-        sum = 0
-        for j in range(len(ins_x)):
-            X_j = ins_x[j]
-            Y_j = ins_y[j]
-            sum += (Y_j - f(w, X_j)) * X_j[i]
-        w[i] += L * sum
+theta = Multivariable_Linear_Regression(x_train, y_train, 0.01, 10000)
 
-print(w)
+
+def predict(X, theta):
+    vectorX = generateXvector(X)
+    return vectorX.dot(theta)
+
+
+y_pred = predict(x_test, theta)
+
+print(f"RMSE: {metrics.mean_squared_error(y_test, y_pred, squared=False)}")
+
+exit(0)
+
