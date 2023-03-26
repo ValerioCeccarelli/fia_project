@@ -1,56 +1,176 @@
-from common.read_dataset import read_dataset_for_classification
+from common.read_dataset import read_dataset_for_regression
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import SGDRegressor
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import numpy as np
+from linear_regression.my_linear_regression import MyLinearRegressor, MyLinearClassifier
+import time
 
-x_data, y_data = read_dataset_for_classification("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
+x_data, y_data = read_dataset_for_regression("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
 
 x_data = StandardScaler().fit(x_data).transform(x_data)
 
 x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2, random_state=1)
 
-sk_regressor = SGDRegressor(penalty=None, max_iter=100000000, shuffle=False, learning_rate="constant", eta0=0.00001,
-                            early_stopping=False)
-sk_regressor = sk_regressor.fit(x_train, y_train)
-sk_y_pred = sk_regressor.predict(x_test)
 
-print(f"scikit RMSE: {metrics.mean_squared_error(y_test, sk_y_pred, squared=False)}")
+def sk_predict(x_train, y_train, x_test, y_test):
+    start = time.time()
+    sk_regressor = SGDRegressor(penalty=None, max_iter=1000, shuffle=False, learning_rate="constant", eta0=0.01,
+                                early_stopping=False)
+    sk_regressor = sk_regressor.fit(x_train, y_train)
+    sk_y_pred = sk_regressor.predict(x_test)
+    end = time.time()
 
+    print(f"sklearn RMSE: {metrics.mean_squared_error(y_test, sk_y_pred, squared=False)}")
+    print(f"in {end - start} seconds")
 
-def generateXvector(X):
-    vectorX = np.c_[np.ones((len(X), 1)), X]
-    return vectorX
-
-
-def theta_init(X):
-    theta = np.random.randn(len(X[0]) + 1, 1)
-    return theta
+    return sk_y_pred
 
 
-def Multivariable_Linear_Regression(X, y, learningrate, iterations):
-    y_new = np.reshape(y, (len(y), 1))
-    vectorX = generateXvector(X)
-    theta = theta_init(X)
-    m = len(X)
-    for i in range(iterations):
-        gradients = 2 / m * vectorX.T.dot(vectorX.dot(theta) - y_new)
-        theta = theta - learningrate * gradients
-    return theta
+def sk_predict_l1(x_train, y_train, x_test, y_test):
+    start = time.time()
+    sk_regressor = SGDRegressor(penalty="l1", max_iter=1000, shuffle=False, learning_rate="constant", eta0=0.01,
+                                early_stopping=False, l1_ratio=1)
+    sk_regressor = sk_regressor.fit(x_train, y_train)
+    sk_y_pred = sk_regressor.predict(x_test)
+    end = time.time()
+
+    print(f"sklearn L1 penalty RMSE: {metrics.mean_squared_error(y_test, sk_y_pred, squared=False)}")
+    print(f"in {end - start} seconds")
+
+    return sk_y_pred
 
 
-theta = Multivariable_Linear_Regression(x_train, y_train, 0.01, 10000)
+def sk_predict_l2(x_train, y_train, x_test, y_test):
+    start = time.time()
+    sk_regressor = SGDRegressor(penalty="l2", max_iter=1000, shuffle=False, learning_rate="constant", eta0=0.01,
+                                early_stopping=False, alpha=1)
+    sk_regressor = sk_regressor.fit(x_train, y_train)
+    sk_y_pred = sk_regressor.predict(x_test)
+    end = time.time()
+
+    print(f"sklearn L2 penalty RMSE: {metrics.mean_squared_error(y_test, sk_y_pred, squared=False)}")
+    print(f"in {end - start} seconds")
+
+    return sk_y_pred
 
 
-def predict(X, theta):
-    vectorX = generateXvector(X)
-    return vectorX.dot(theta)
+def sk_predict_elasticnet(x_train, y_train, x_test, y_test):
+    start = time.time()
+    sk_regressor = SGDRegressor(penalty="elasticnet", max_iter=1000, shuffle=False, learning_rate="constant", eta0=0.01,
+                                early_stopping=False, alpha=0.5, l1_ratio=0.5)
+    sk_regressor = sk_regressor.fit(x_train, y_train)
+    sk_y_pred = sk_regressor.predict(x_test)
+    end = time.time()
+
+    print(f"sklearn elasticnet penalty RMSE: {metrics.mean_squared_error(y_test, sk_y_pred, squared=False)}")
+    print(f"in {end - start} seconds")
+
+    return sk_y_pred
 
 
-y_pred = predict(x_test, theta)
+def my_predict(x_train, y_train, x_test, y_test):
+    start = time.time()
+    my_regressor = MyLinearRegressor(learning_rate=0.01, iterations=1000)
+    my_regressor.fit(x_train, y_train)
+    my_y_pred = my_regressor.predict(x_test)
+    end = time.time()
 
-print(f"RMSE: {metrics.mean_squared_error(y_test, y_pred, squared=False)}")
+    print(f"my RMSE: {metrics.mean_squared_error(y_test, my_y_pred, squared=False)}")
+    print(f"in {end - start} seconds")
 
-exit(0)
+    return my_y_pred
 
+
+def my_predict_l1(x_train, y_train, x_test, y_test):
+    start = time.time()
+    my_regressor = MyLinearRegressor(learning_rate=0.01, iterations=1000, l1_penalty=1)
+    my_regressor.fit(x_train, y_train)
+    my_y_pred = my_regressor.predict(x_test)
+    end = time.time()
+
+    print(f"my L1 RMSE: {metrics.mean_squared_error(y_test, my_y_pred, squared=False)}")
+    print(f"in {end - start} seconds")
+
+    return my_y_pred
+
+
+def my_predict_l2(x_train, y_train, x_test, y_test):
+    start = time.time()
+    my_regressor = MyLinearRegressor(learning_rate=0.01, iterations=1000, l2_penalty=1)
+    my_regressor.fit(x_train, y_train)
+    my_y_pred = my_regressor.predict(x_test)
+    end = time.time()
+
+    print(f"my L2 RMSE: {metrics.mean_squared_error(y_test, my_y_pred, squared=False)}")
+    print(f"in {end - start} seconds")
+
+    return my_y_pred
+
+
+def my_predict_elasticnet(x_train, y_train, x_test, y_test):
+    start = time.time()
+    my_regressor = MyLinearRegressor(learning_rate=0.01, iterations=1000, l2_penalty=0.5, l1_penalty=0.5)
+    my_regressor.fit(x_train, y_train)
+    my_y_pred = my_regressor.predict(x_test)
+    end = time.time()
+
+    print(f"my elasticnet RMSE: {metrics.mean_squared_error(y_test, my_y_pred, squared=False)}")
+    print(f"in {end - start} seconds")
+
+    return my_y_pred
+
+
+# print("REGRESSION")
+#
+# print("------------------------------------------------------------------")
+#
+# sk_predict(x_train, y_train, x_test, y_test)
+#
+# print("------------------------------------------------------------------")
+#
+# my_predict(x_train, y_train, x_test, y_test)
+#
+# print("------------------------------------------------------------------")
+#
+# sk_predict_l1(x_train, y_train, x_test, y_test)
+#
+# print("------------------------------------------------------------------")
+#
+# my_predict_l1(x_train, y_train, x_test, y_test)
+#
+# print("------------------------------------------------------------------")
+#
+# sk_predict_l2(x_train, y_train, x_test, y_test)
+#
+# print("------------------------------------------------------------------")
+#
+# my_predict_l2(x_train, y_train, x_test, y_test)
+#
+# print("------------------------------------------------------------------")
+#
+# sk_pred = sk_predict_elasticnet(x_train, y_train, x_test, y_test)
+#
+# print("------------------------------------------------------------------")
+#
+# my_pred = my_predict_elasticnet(x_train, y_train, x_test, y_test)
+#
+# print("------------------------------------------------------------------")
+
+print("\n\n\n")
+print("CLASSIFICATION")
+
+print("------------------------------------------------------------------")
+
+y_test = np.array([1 if x >= 1400 else -1 for x in y_test])
+y_train = np.array([1 if x >= 1400 else -1 for x in y_train])
+
+start = time.time()
+classifier = MyLinearClassifier(learning_rate=0.01, iterations=1000)
+classifier.fit(x_train, y_train)
+y_pred = classifier.predict(x_test)
+end = time.time()
+
+print(f"my accuracy: {metrics.accuracy_score(y_test, y_pred)}")
+print(f"in {end - start} seconds")
