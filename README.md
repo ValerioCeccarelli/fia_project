@@ -1,14 +1,13 @@
-# fia_project
+# FIA project
 
 This repository contains the project that I have to submit to pass the course "Fondamemti di Intelligenza Artificiale" (Fundamentals of Artificial Intelligence) of 
 my 3rd year of university 2022/2023 (Engineering in computer science).
 
 The project consists in implementing the artificial intelligence algorithms studied in class, and then train and test them with the same set of data retrive from 
 [here](https://archive.ics.uci.edu/ml/machine-learning-databases/00332/OnlineNewsPopularity.zip); this dataset consist in a .csv file that contains a table with 
-61 columns where the last column is the value to estimate with the algorithms (we skipped the first 2 column because are insignificant).
+61 columns where the last column is the value to estimate with the algorithms (also we skipped the first 2 column because are insignificant).
 
-## Algorithm
-The next sections will explain the various algorithms used.
+## Algorithms
 
 ### Decision Tree
 A decision tree is a representation of a function that maps a vector of attribute values to a single output value: a "decision";
@@ -24,10 +23,14 @@ other hand it has drawbacks like the fact that with real-valued attributes, the 
 the decision boundary is a diagonal line, and all decision tree tests divide the space up into rectangular, axis-aligned boxes.
 
 ### Linear Regression
-!!! TODO !!! work in progress (don't look in this folder)
+Linear regression is an algorithm that is used to predict a continuous value based on a given set of independent variables (features). 
+this regression can be performed in two ways: a closed form solution and an iterative solution. The closed solution isa based on a single math formula unlike 
+the iterative solution which use the Gradient Descent algorithm, that is an algorithm that is used to find the minimum of a function.
+In this implementation I have used the Gradient Descent algorithm to find the parameters that minimize the Root Mean Squared Error (RMSE) between my predictions and the 
+ground truth provided by the dataset.
 
 ### Logistic Regression
-!!! TODO !!! work in progress (don't look in this folder)
+!!! To Be Completed !!!
 
 ### Nearest Neighbors
 The nearest neighbors algorithm is a simple, easy-to-implement supervised learning algorithm that can be used to solve both classification and regression problems.
@@ -55,5 +58,6 @@ The power of this algorithm is that it is very simple to implement and understan
     python .\decision_tree\main.py
     ```
 
+### Compatibility
 
-
+This project has been tested on Windows 10 with Python 3.9 and on Windows 11 with Python 3.10.
