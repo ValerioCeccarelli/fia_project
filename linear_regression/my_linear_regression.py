@@ -70,7 +70,7 @@ class MyLinearClassifier:
         self.l2_penalty = l2_penalty
         self.theta = None
 
-        self.func = np.vectorize(lambda x: 1 if x >= 0 else -1)
+        self.func = np.vectorize(lambda x: 1 if x >= 0 else 0)
 
     def fit(self, x_data: np.ndarray, y_data: np.ndarray) -> None:
         assert isinstance(x_data, np.ndarray), "x_data must be a numpy array"

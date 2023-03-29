@@ -1,18 +1,11 @@
 from common.read_dataset import read_dataset_for_regression
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import SGDRegressor
+from sklearn.linear_model import SGDRegressor, SGDClassifier
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import numpy as np
 from linear_regression.my_linear_regression import MyLinearRegressor, MyLinearClassifier
 import time
-
-x_data, y_data = read_dataset_for_regression("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
-
-x_data = StandardScaler().fit(x_data).transform(x_data)
-
-x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2, random_state=1)
-
 
 def sk_predict(x_train, y_train, x_test, y_test):
     start = time.time()
@@ -122,49 +115,64 @@ def my_predict_elasticnet(x_train, y_train, x_test, y_test):
     return my_y_pred
 
 
-# print("REGRESSION")
-#
-# print("------------------------------------------------------------------")
-#
-# sk_predict(x_train, y_train, x_test, y_test)
-#
-# print("------------------------------------------------------------------")
-#
-# my_predict(x_train, y_train, x_test, y_test)
-#
-# print("------------------------------------------------------------------")
-#
-# sk_predict_l1(x_train, y_train, x_test, y_test)
-#
-# print("------------------------------------------------------------------")
-#
-# my_predict_l1(x_train, y_train, x_test, y_test)
-#
-# print("------------------------------------------------------------------")
-#
-# sk_predict_l2(x_train, y_train, x_test, y_test)
-#
-# print("------------------------------------------------------------------")
-#
-# my_predict_l2(x_train, y_train, x_test, y_test)
-#
-# print("------------------------------------------------------------------")
-#
-# sk_pred = sk_predict_elasticnet(x_train, y_train, x_test, y_test)
-#
-# print("------------------------------------------------------------------")
-#
-# my_pred = my_predict_elasticnet(x_train, y_train, x_test, y_test)
-#
-# print("------------------------------------------------------------------")
+print("REGRESSION")
+
+x_data, y_data = read_dataset_for_regression("../dataset/OnlineNewsPopularity/OnlineNewsPopularity.csv")
+x_data = StandardScaler().fit(x_data).transform(x_data)
+x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2, random_state=1)
+
+print("------------------------------------------------------------------")
+
+sk_predict(x_train, y_train, x_test, y_test)
+
+print("------------------------------------------------------------------")
+
+my_predict(x_train, y_train, x_test, y_test)
+
+print("------------------------------------------------------------------")
+
+sk_predict_l1(x_train, y_train, x_test, y_test)
+
+print("------------------------------------------------------------------")
+
+my_predict_l1(x_train, y_train, x_test, y_test)
+
+print("------------------------------------------------------------------")
+
+sk_predict_l2(x_train, y_train, x_test, y_test)
+
+print("------------------------------------------------------------------")
+
+my_predict_l2(x_train, y_train, x_test, y_test)
+
+print("------------------------------------------------------------------")
+
+sk_pred = sk_predict_elasticnet(x_train, y_train, x_test, y_test)
+
+print("------------------------------------------------------------------")
+
+my_pred = my_predict_elasticnet(x_train, y_train, x_test, y_test)
+
+print("------------------------------------------------------------------")
 
 print("\n\n\n")
 print("CLASSIFICATION")
 
+y_test = np.array([True if x >= 1400 else False for x in y_test])
+y_train = np.array([True if x >= 1400 else False for x in y_train])
+
 print("------------------------------------------------------------------")
 
-y_test = np.array([1 if x >= 1400 else -1 for x in y_test])
-y_train = np.array([1 if x >= 1400 else -1 for x in y_train])
+start = time.time()
+sk_classifier = SGDClassifier(penalty=None, max_iter=1000, shuffle=False, learning_rate="constant", eta0=0.01, early_stopping=False)
+sk_classifier.fit(x_train, y_train)
+sk_y_pred = sk_classifier.predict(x_test)
+end = time.time()
+
+print(f"sklearn accuracy: {metrics.accuracy_score(y_test, sk_y_pred)}")
+print(f"in {end - start} seconds")
+
+print("------------------------------------------------------------------")
 
 start = time.time()
 classifier = MyLinearClassifier(learning_rate=0.01, iterations=1000)
@@ -174,3 +182,5 @@ end = time.time()
 
 print(f"my accuracy: {metrics.accuracy_score(y_test, y_pred)}")
 print(f"in {end - start} seconds")
+
+print("------------------------------------------------------------------")
