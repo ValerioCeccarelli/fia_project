@@ -1,4 +1,5 @@
 import time
+from my_neural_network import MyNeuralNetwork
 
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor, MLPClassifier
@@ -12,22 +13,41 @@ x_data, y_data = read_dataset_for_regression("../dataset/OnlineNewsPopularity/On
 x_data = StandardScaler().fit(x_data).transform(x_data)
 x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2, random_state=1)
 
-for i in range(1, 10):
-    hidden_size = 128*i
-    max_iter = 4000
+print("------------------------------------------------------------------")
 
-    start = time.time()
-    sk_model = MLPRegressor(
-        hidden_layer_sizes=(hidden_size,),
-        # verbose=True,
-        max_iter=max_iter,
-    ).fit(x_train, y_train)
-    y_pred = sk_model.predict(x_test)
-    end = time.time()
+start = time.time()
+sk_model = MLPRegressor(hidden_layer_sizes=(128,), max_iter=100).fit(x_train, y_train)
+y_pred = sk_model.predict(x_test)
+end = time.time()
 
-    print(
-        f"Scikit Learn: {metrics.mean_squared_error(y_test, y_pred, squared=False)} in {end - start} seconds, hidden size: {hidden_size}, max iter: {max_iter}"
-    )
+print(f"sklearn accuracy: {metrics.mean_squared_error(y_test, y_pred, squared=False)} in {end - start} seconds")
+
+print("------------------------------------------------------------------")
+
+start = time.time()
+my_model = MyNeuralNetwork()
+my_model.fit(x_train, y_train)
+y_pred = my_model.predict(x_test)
+end = time.time()
+
+print(f"my accuracy: {metrics.mean_squared_error(y_test, y_pred, squared=False)} in {end - start} seconds")
+
+# for i in range(1, 10):
+#     hidden_size = 128*i
+#     max_iter = 4000
+#
+#     start = time.time()
+#     sk_model = MLPRegressor(
+#         hidden_layer_sizes=(hidden_size,),
+#         # verbose=True,
+#         max_iter=max_iter,
+#     ).fit(x_train, y_train)
+#     y_pred = sk_model.predict(x_test)
+#     end = time.time()
+#
+#     print(
+#         f"Scikit Learn: {metrics.mean_squared_error(y_test, y_pred, squared=False)} in {end - start} seconds, hidden size: {hidden_size}, max iter: {max_iter}"
+#     )
 
 # Scikit Learn: 8454.501093790243 in 479.51882433891296 seconds, hidden size: 128, max iter: 4000
 # E:\Progetti\Python\fia_project\venv\lib\site-packages\sklearn\neural_network\_multilayer_perceptron.py:686: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (4000) reached and the optimization hasn't converged yet.
