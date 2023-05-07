@@ -32,7 +32,6 @@ class MyLogisticClassifier:
         x_data_t = x_data.T
 
         for _ in range(self.iterations):
-            #TODO: check if this is correct
             y_pred = sigmoid(x_data @ self.theta)
             error = y_pred - y_data
             gradients = 1 / m * x_data_t @ error
