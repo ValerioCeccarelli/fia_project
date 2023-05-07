@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy.spatial import distance
 
 class MyNearestNeighborsClassifier:
     """
@@ -76,8 +76,9 @@ class MyNearestNeighborsClassifier:
         if isinstance(x_test, list):
             x_test = np.array(x_test)
 
-        differences = self._x_train - x_test
-        distances = np.linalg.norm(differences, ord=self._distance, axis=1)
+        # differences = self._x_train - x_test
+        # distances = np.linalg.norm(differences, ord=self._distance, axis=1)
+        distances = distance.cdist([x_test], self._x_train, metric='minkowski', p=self._distance)[0]
         min = np.argpartition(distances, self._k_nearest)[:self._k_nearest]
         n_positive = len([x for x in self._y_train[min] if x])
         result = True if n_positive > self._k_nearest / 2 else False
@@ -159,8 +160,9 @@ class MyNearestNeighborsRegressor:
         if isinstance(x_test, list):
             x_test = np.array(x_test)
 
-        differences = self._x_train - x_test
-        distances = np.linalg.norm(differences, ord=self._distance, axis=1)
+        # differences = self._x_train - x_test
+        # distances = np.linalg.norm(differences, ord=self._distance, axis=1)
+        distances = distance.cdist([x_test], self._x_train, metric='minkowski', p=self._distance)[0]
         k_min = np.argpartition(distances, self._k_nearest)[:self._k_nearest]
         mean = np.mean(self._y_train[k_min])
         return mean
