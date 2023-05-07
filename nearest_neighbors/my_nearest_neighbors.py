@@ -58,11 +58,11 @@ class MyNearestNeighborsClassifier:
         if isinstance(x_tests, list):
             x_tests = np.array(x_tests)
 
-        results = []
-        for test in x_tests:
-            result = self.predict_single(test)
-            results.append(result)
-        return results
+        distances = distance.cdist(x_tests, self._x_train, metric='minkowski', p=self._distance)
+        min = np.argpartition(distances, self._k_nearest, axis=1)[:, :self._k_nearest]
+        n_positive = np.sum(self._y_train[min], axis=1)
+        result = n_positive > self._k_nearest / 2
+        return result
 
     def predict_single(self, x_test: list) -> bool:
         """
@@ -76,8 +76,6 @@ class MyNearestNeighborsClassifier:
         if isinstance(x_test, list):
             x_test = np.array(x_test)
 
-        # differences = self._x_train - x_test
-        # distances = np.linalg.norm(differences, ord=self._distance, axis=1)
         distances = distance.cdist([x_test], self._x_train, metric='minkowski', p=self._distance)[0]
         min = np.argpartition(distances, self._k_nearest)[:self._k_nearest]
         n_positive = len([x for x in self._y_train[min] if x])
@@ -142,11 +140,10 @@ class MyNearestNeighborsRegressor:
         if isinstance(x_tests, list):
             x_tests = np.array(x_tests)
 
-        results = []
-        for test in x_tests:
-            result = self.predict_single(test)
-            results.append(result)
-        return results
+        distances = distance.cdist(x_tests, self._x_train, metric='minkowski', p=self._distance)
+        min = np.argpartition(distances, self._k_nearest, axis=1)[:, :self._k_nearest]
+        mean = np.mean(self._y_train[min], axis=1)
+        return mean
 
     def predict_single(self, x_test: list) -> float:
         """
