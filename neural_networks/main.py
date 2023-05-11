@@ -52,7 +52,7 @@ print("CLASSIFICATION")
 # print("------------------------------------------------------------------")
 
 start = time.time()
-my_model = MyNeuralNetworkClassifier(iterations=1000, hidden_neurons=200, learning_rate=0.09)
+my_model = MyNeuralNetworkClassifier(iterations=1000, hidden_neurons=100, learning_rate=0.1)
 my_model.fit(x_train, y_train)
 y_pred = my_model.predict(x_test)
 end = time.time()
@@ -60,3 +60,6 @@ end = time.time()
 y_pred = [1 if y > 0.5 else 0 for y in y_pred]
 
 print(f"my accuracy: {metrics.accuracy_score(y_test, y_pred)} in {end - start} seconds")
+
+# classification 1000 iter, 100 hidden, 0.09 lr my accuracy: 0.658 in 65 seconds
+# classification 1000 iter, 100 hidden, 0.1 lr my accuracy: 0.657 in 63 seconds
